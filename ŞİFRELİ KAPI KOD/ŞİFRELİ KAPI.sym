@@ -1,0 +1,108 @@
+004-005 @READ_PROGRAM_MEMORY8.P1
+004-005 @WRITE_PROGRAM_MEMORY8.P2
+008     PSP_DATA
+015     CCP_1
+015     CCP_1_LOW
+016     CCP_1_HIGH
+01B     CCP_2_LOW
+01B     CCP_2
+01C     CCP_2_HIGH
+020     tus
+021     basildi
+022-025 sifre
+026     @TRIS_C
+027     MAIN.sec
+028     MAIN.yanlis
+029     MAIN.gelen
+02A     MAIN.deneme_sayisi
+02B     lcd_init.i
+02B     MAIN.@SCRATCH1
+02B     @PSTRINGC7_645.@SCRATCH1
+02C-02F lcd_init.LCD_INIT_STRING
+02C     @PSTRINGC7_645.@SCRATCH2
+02D     @PSTRINGC7_645.@SCRATCH3
+02E     lcd_putc.c
+02E     @PSTRINGC7_645.@SCRATCH4
+02F     lcd_gotoxy.x
+030     @delay_ms1.P1
+030     lcd_gotoxy.y
+030     lcd_init.@SCRATCH1
+031     lcd_gotoxy.address
+032     lcd_gotoxy.@SCRATCH1
+033     lcd_send_byte.address
+034     lcd_send_byte.n
+035     lcd_read_byte.low
+035     lcd_send_byte.@SCRATCH1
+036     lcd_send_nibble.n
+036     lcd_read_byte.high
+037     lcd_read_nibble.n
+037     lcd_read_byte.@SCRATCH1
+038     lcd_read_nibble.@SCRATCH1
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+09C.6   C1OUT
+09C.7   C2OUT
+10D-10E @READ_PROGRAM_MEMORY8.P1
+10D-10E @WRITE_PROGRAM_MEMORY8.P2
+
+ROM Allocation:
+000004  @const664.call
+00000A  @const666.call
+000011  @const667.call
+000016  @const668.call
+00001B  @const669.call
+000023  @const675.call
+00002A  @const677.call
+000032  @const678.call
+000037  @const679.call
+00003F  @const680.call
+000047  @const681.call
+00004F  @delay_ms1
+000064  lcd_send_nibble
+00008F  lcd_read_nibble
+0000C0  lcd_send_byte
+0000C8  lcd_read_byte
+00011C  lcd_init
+000162  lcd_gotoxy
+000174  lcd_putc
+0001A0  @PSTRINGC7_645
+0001F6  keypad_oku
+0002FE  MAIN
+0002FE  @cinit1
+00030B  @cinit2
+
+Project Directory:
+    C:\Users\Taha\Desktop\OKUL BELGELER\CCS C ÇALIÞMALAR\ÞÝFRELÝ KAPI KÝLÝDÝ UYGULAMASI\ÞÝFRELÝ KAPI KOD\
+
+Project Files:
+    ÞÝFRELÝ KAPI.c                                          [21-May-24 02:39  CRC=8A4B5743]
+    ..\..\..\..\..\..\..\Program Files (x86)\PICC\Devices\16f877a.h [12-Kas-13 14:35  CRC=81334808]
+    ..\..\..\..\..\..\..\Program Files (x86)\PICC\Drivers\lcd.c [19-Eyl-13 15:38  CRC=D1A6378A]
+
+Source signature=AECB0E5F
+
+Units:
+    ÞÝFRELÝ KAPI (main)
+
+Compiler Settings:
+    Processor:      PIC16F877A
+    Pointer Size:   16
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: UNSIGNED: 1,8,16
+    Float,Double:   32,32
+
+Output Files:
+    XREF file:   ÞÝFRELÝ KAPI.xsym
+    Errors:      ÞÝFRELÝ KAPI.err
+    Ext Symbols: ÞÝFRELÝ KAPI.esym
+    INHX8:       ÞÝFRELÝ KAPI.hex
+    Symbols:     ÞÝFRELÝ KAPI.sym
+    List:        ÞÝFRELÝ KAPI.lst
+    Debug/COFF:  ÞÝFRELÝ KAPI.cof
+    Project:     ÞÝFRELÝ KAPI.ccspjt
+    Call Tree:   ÞÝFRELÝ KAPI.tre
+    Statistics:  ÞÝFRELÝ KAPI.STA

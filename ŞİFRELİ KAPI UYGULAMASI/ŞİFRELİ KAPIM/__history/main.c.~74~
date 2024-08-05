@@ -1,0 +1,143 @@
+#include <main.h>
+#define LCD_RS_PIN PIN_B7
+#define LCD_RW_PIN PIN_B6
+#define LCD_ENABLE_PIN PIN_B5
+#define LCD_DATA4 PIN_B4
+#define LCD_DATA5 PIN_B3
+#define LCD_DATA6 PIN_B2
+#define LCD_DATA7 PIN_B1
+#include "lcd.c"
+#define buton pin_a0
+#define sut1 pin_d0
+#define sut2 pin_d1
+#define sut3 pin_d2
+#define sut4 pin_d3
+
+#define sat1 pin_d4
+#define sat2 pin_d5
+#define sat3 pin_d6
+#define sat4 pin_d7
+
+#define ROLE pin_c1
+
+
+int tus=0;
+int basildi;
+int tus1[4]={11,11,11,11};
+int yanlis=0,sayac=0,flag=0,flag2=0,flag3=0,roleflag=0,taha=0;
+int sifre[4] = {1, 9, 0, 3}; // Þifreyi burada tanýmlýyoruz
+
+int keypad_oku()
+{
+    output_d(0x00);
+    tus = 0;
+    
+    output_high(SAT1); // SATIR 1
+    if (input(SUT1)) { while(input(SUT1)); tus = 1; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 2; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 3; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xA; basildi = 1; }
+    output_low(SAT1);
+    
+    output_high(SAT2); // SATIR 2
+    if (input(SUT1)) { while(input(SUT1)); tus = 4; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 5; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 6; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xB; basildi = 1; }
+    output_low(SAT2);
+    
+    output_high(SAT3); // SATIR 3
+    if (input(SUT1)) { while(input(SUT1)); tus = 7; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 8; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 9; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xC; basildi = 1; }
+    output_low(SAT3);
+    
+    output_high(SAT4); // SATIR 4
+    if (input(SUT1)) { while(input(SUT1)); tus = 0xE; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 0; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 0xF; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xD; basildi = 1; }
+    output_low(SAT4);
+    
+    return tus;
+}
+
+int compare(void)
+{
+   for(int i=0;i<4;i++)
+   {
+      if(tus1[i]!=sifre[i]) 
+      
+      return 0;
+   }
+   return 1;
+}
+#INT_TIMER1
+void  TIMER1_isr(void) 
+{
+   sayac++;
+   if(sayac==10 && flag3==0)
+   {
+      flag=0;
+      sayac=0;
+      flag2=1;
+      disable_interrupts(INT_TIMER1);
+   }
+   
+   if(flag3==1 && sayac==5)
+   {
+     sayac=0;
+     flag3=0;
+     roleflag=1;
+     flag=0;
+     disable_interrupts(INT_TIMER1);
+   }
+}
+
+void main()
+{
+   setup_timer_1(T1_INTERNAL|T1_DIV_BY_8);      
+   output_d(0x00);
+   delay_us(20);
+   enable_interrupts(GLOBAL);
+   
+   set_tris_d(0x0F);
+   set_tris_c(0x00);
+   set_tris_a(0x00);
+   lcd_init();
+ 
+   output_high(pin_c3);
+   
+   output_low(ROLE);
+   
+   while(TRUE)
+   {
+      if(flag!=1 && flag3!=1)
+      {
+         
+         printf(lcd_putc,"\fParola Giriniz");
+         oku(tus);
+         if(compare()!=1)
+         {yanlis++;
+         printf(lcd_putc,"\fParola Hatali");
+         }
+         else 
+         {
+            yanlis=0;
+            output_high(ROLE);
+            printf(lcd_putc,"\fWELCOME");
+            flag3=1;
+            enable_interrupts(INT_TIMER1);
+         }
+      }
+      if(yanlis==3)
+      {
+         printf(lcd_putc,"\fKilitlendi!");
+         yanlis=0;
+         enable_interrupts(INT_TIMER1);
+         flag=1;
+      }
+   }
+}
+      

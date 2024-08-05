@@ -1,0 +1,202 @@
+#include <1_wire.c>
+#define use_portb_lcd TRUE 
+#include <lcd.c>
+#fuses XT,NOWDT,NOPROTECT,NOBROWNOUT,NOLVP,NOPUT,NOWRT,NODEBUG,NOCPD
+
+#define LCD_RS_PIN      PIN_B7
+#define LCD_RW_PIN      PIN_B6
+#define LCD_ENABLE_PIN  PIN_B5
+#define LCD_DATA4       PIN_B4
+#define LCD_DATA5       PIN_B3
+#define LCD_DATA6       PIN_B2
+#define LCD_DATA7       PIN_B1
+
+#include "lcd.c"
+
+#define SUT1    PIN_D0
+#define SUT2    PIN_D1
+#define SUT3    PIN_D2
+#define SUT4    PIN_D3
+
+#define SAT1    PIN_D4
+#define SAT2    PIN_D5
+#define SAT3    PIN_D6
+#define SAT4    PIN_D7
+
+#define ROLE    PIN_C0
+#define ROLE1   PIN_C1
+
+int tus = 0;
+int basildi;
+int kara_sifre[4] = {1, 9, 0, 3};  // "kara" þifresi
+int kapa_sifre[4] = {4, 2, 7, 8};  // "kapa" þifresi
+int1 sonuc;
+
+int8 seri_no1=0, seri_no2=0, seri_no3=0, seri_no4=0, seri_no5=0, seri_no6=0, seri_no7=0, seri_no8=0;
+int32 seri_no=0;
+
+
+int keypad_oku()
+{
+    output_d(0x00);
+    tus = 0;
+    
+    output_high(SAT1); // SATIR 1
+    if (input(SUT1)) { while(input(SUT1)); tus = 1; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 2; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 3; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xA; basildi = 1; }
+    output_low(SAT1);
+    
+    output_high(SAT2); // SATIR 2
+    if (input(SUT1)) { while(input(SUT1)); tus = 4; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 5; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 6; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xB; basildi = 1; }
+    output_low(SAT2);
+    
+    output_high(SAT3); // SATIR 3
+    if (input(SUT1)) { while(input(SUT1)); tus = 7; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 8; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 9; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xC; basildi = 1; }
+    output_low(SAT3);
+    
+    output_high(SAT4); // SATIR 4
+    if (input(SUT1)) { while(input(SUT1)); tus = 0xE; basildi = 1; }
+    if (input(SUT2)) { while(input(SUT2)); tus = 0; basildi = 1; }
+    if (input(SUT3)) { while(input(SUT3)); tus = 0xF; basildi = 1; }
+    if (input(SUT4)) { while(input(SUT4)); tus = 0xD; basildi = 1; }
+    output_low(SAT4);
+    
+    return tus;
+}
+
+void main()
+{
+setup_psp(PSP_DISABLED);
+setup_timer_1 (T1_DISABLED);
+setup_timer_2 (T2_DISABLED,0,1); 
+setup_adc_ports(NO_ANALOGS);
+setup_adc(ADC_OFF);
+setup_CCP1(CCP_OFF);
+setup_CCP2(CCP_OFF);
+
+lcd_init();
+ow_hiz(1);
+    
+    set_tris_d(0x0F);
+    
+    lcd_init();
+    
+    printf(lcd_putc, "\fParola Giriniz");
+   
+    int sec = 0;
+    int yanlis = 0;
+    int gelen;
+    int deneme_sayisi = 0; 
+    int kara_dogrulandi = 0;
+   
+    while(true)
+    {
+        gelen = keypad_oku();
+        if(basildi == 1) 
+        {
+            basildi = 0;
+     
+            lcd_gotoxy(7 + sec, 2);
+            printf(lcd_putc, "*");
+     
+            if (!kara_dogrulandi) {
+                if (kara_sifre[sec] != gelen) {
+                    yanlis = 1;
+                    sec = 0; 
+                    deneme_sayisi++; 
+                } else {
+                    sec++;
+                    if (sec == 4) {
+                        kara_dogrulandi = 1;
+                        
+                        printf(lcd_putc, "\fKapa Giriniz");
+                        sec = 0;
+                        output_high(ROLE);
+                        delay_ms(500);
+                        output_low(ROLE);
+                    }
+                }
+            } else {
+                if (kapa_sifre[sec] != gelen) {
+                    yanlis = 1;
+                    sec = 0; 
+                    deneme_sayisi++; 
+                    kara_dogrulandi = 0; // Yeniden "kara" þifresini beklemeye baþla
+                    printf(lcd_putc, "\fParola Hatali");
+                    printf(lcd_putc, "\nKara Giriniz");
+                } else {
+                    sec++;
+                    if (sec == 4) {
+                        printf(lcd_putc, "\fKapa Dogrulandi");
+                        output_high(ROLE1);  // "kapa" þifresi doðru girildi, ROLE1'e çýkýþ ver
+                        delay_ms(2000);
+                        output_low(ROLE1);
+                        printf(lcd_putc, "\fParola Giriniz");
+                        sec = 0; 
+                        kara_dogrulandi = 0; // Yeniden "kara" þifresini beklemeye baþla
+                    }
+                }
+            }
+   
+            if (yanlis == 1)
+            {
+                printf(lcd_putc, "\fParola Hatali");
+                lcd_gotoxy(15, 2);
+                delay_ms(2000);
+                yanlis = 0;
+                printf(lcd_putc, "\fParola Giriniz");
+            }
+            
+        }
+        
+        sonuc=ow_reset ();
+    if (sonuc==0)
+    {
+    printf(lcd_putc,"\fCihaz calisiyor");
+    delay_ms(500);
+    ow_yaz_byte(0x33);
+    
+    seri_no1=ow_oku_byte();
+    seri_no2=ow_oku_byte();
+    seri_no3=ow_oku_byte();
+    seri_no4=ow_oku_byte();
+    seri_no5=ow_oku_byte();
+    seri_no6=ow_oku_byte();
+    seri_no7=ow_oku_byte();
+    seri_no8=ow_oku_byte();
+    
+    seri_no= make32 (seri_no2,seri_no3,seri_no4,seri_no5);
+    
+    printf(lcd_putc,"\FCihaz Murat");
+    printf(lcd_putc, "/n%X" , seri_no1);
+    delay_ms(500);
+    
+    printf(lcd_putc,"\fCihaz Seri No");
+    printf(lcd_putc,"\n%X%X%X%X%X%X",seri_no2, seri_no3,seri_no4,seri_no5,seri_no6,seri_no7);
+    delay_ms(500);
+    
+    if(seri_no==0x00000000)
+    output_high(pin_c1);
+    else
+    {
+    output_low(pin_c1);
+    }
+    
+    
+    }
+    else
+    
+    printf(lcd_putc,"\fCihaz calismiyor");
+    
+    delay_ms(500);
+    }
+}
+

@@ -1,0 +1,83 @@
+#include <16f877a.h>
+
+#fuses NOWDT
+#fuses NOBROWNOUT
+#fuses NOLVP
+
+#use delay(crystal=4000000)
+
+#define LCD_RS_PIN PIN_B7
+#define LCD_RW_PIN PIN_B6
+#define LCD_ENABLE_PIN PIN_B5
+#define LCD_DATA4 PIN_B4
+#define LCD_DATA5 PIN_B3
+#define LCD_DATA6 PIN_B2
+#define LCD_DATA7 PIN_B1
+
+#include "lcd.c"
+
+#define sut1 pin_d0
+#define sut2 pin_d1
+#define sut3 pin_d2
+#define sut4 pin_d3
+
+#define sat1 pin_d4
+#define sat2 pin_d5
+#define sat3 pin_d6
+#define sat4 pin_d7
+
+#define ROLE pin_c0
+
+int x=0;
+int16 sayi1=0;
+int16  sayi=0;
+
+char tus()
+{
+     output_high(pin_d0);
+     if(input(pin_d4)){ while(input(pin_d4)); printf(lcd_putc,"7"); x=7; sayi=sayi*10 +x;  }  // 7
+     if(input(pin_d5)){ while(input(pin_d5)); printf(lcd_putc,"8");  x=8; sayi=sayi*10 +x; }   // 8
+     if(input(pin_d6)){ while(input(pin_d6)); printf(lcd_putc,"9");  x=9; sayi=sayi*10 +x;}   // 9
+     if(input(pin_d7)){ while(input(pin_d7)); printf(lcd_putc,"/");  
+      sayi1=sayi;     islem=4;     sayi=0;  }   // bölme
+      output_low(pin_d0);
+       
+      output_high(pin_d1);
+     if(input(pin_d4)){ while(input(pin_d4)); printf(lcd_putc,"4"); x=4; sayi=sayi*10 +x;}  // 4
+     if(input(pin_d5)){ while(input(pin_d5)); printf(lcd_putc,"5");  x=5; sayi=sayi*10 +x;}   // 5
+     if(input(pin_d6)){ while(input(pin_d6)); printf(lcd_putc,"6");  x=6; sayi=sayi*10 +x;}   //6
+     if(input(pin_d7)){ while(input(pin_d7)); printf(lcd_putc,"*");
+     sayi1=sayi;    islem=3;   sayi=0;}  // çarpma
+      output_low(pin_d1);
+       
+      output_high(pin_d2);
+     if(input(pin_d4)){ while(input(pin_d4)); printf(lcd_putc,"1"); x=1; sayi=sayi*10 +x;} // 1
+     if(input(pin_d5)){ while(input(pin_d5)); printf(lcd_putc,"2");  x=2; sayi=sayi*10 +x;}  //2
+     if(input(pin_d6)){ while(input(pin_d6)); printf(lcd_putc,"3");  x=3; sayi=sayi*10 +x;} //3
+     if(input(pin_d7)){ while(input(pin_d7)); printf(lcd_putc,"-"); 
+     sayi1=sayi;    islem=2;    sayi=0;     } //- çýkarma
+      output_low(pin_d2);
+       
+       output_high(pin_d3);
+     if(input(pin_d4)){ while(input(pin_d4)); printf(lcd_putc,"\f ON");printf(lcd_putc,"\f");sayi1=0;sayi=0;x=0;islem=0;sonuc=0;} 
+     if(input(pin_d5)){ while(input(pin_d5)); printf(lcd_putc,"0"); x=0; sayi=sayi*10 +x;}
+     if(input(pin_d6)){ while(input(pin_d6));
+     sayi1;     sonuc_bul();     }// =
+      
+     if(input(pin_d7)){while(input(pin_d7)); printf(lcd_putc,"+");
+     sayi1=sayi;     islem=1;     sayi=0;    }
+      output_low(pin_d3);
+       
+      return sayi,sayi1,islem;
+}
+
+void main()
+{
+while(TRUE)
+   {
+   
+ tus();
+     
+   }
+}
+
